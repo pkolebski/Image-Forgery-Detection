@@ -9,17 +9,17 @@ def detect(sourceDirectory, fileName, outputDirectory, blockSize=32):
     """
 
     if not os.path.exists(sourceDirectory):
-        print "Error: Source Directory did not exist."
+        print("Error: Source Directory did not exist.")
         return
     elif not os.path.exists(sourceDirectory + fileName):
-        print "Error: Image file did not exist."
+        print("Error: Image file did not exist.")
         return
     elif not os.path.exists(outputDirectory):
-        print "Error: Output Directory did not exist."
+        print("Error: Output Directory did not exist.")
         return
 
     singleImage = image_object.image_object(sourceDirectory, fileName, blockSize, outputDirectory)
     imageResultPath = singleImage.run()
 
-    print "Done."
+    print("Done.")
     return imageResultPath

@@ -139,7 +139,7 @@ def main():
 
 	shift_vec = calc_shift_vec(sorted_data, W_prime)
 
-	print shift_vec
+	print(shift_vec)
 
 if __name__ == "__main__":
 	main()

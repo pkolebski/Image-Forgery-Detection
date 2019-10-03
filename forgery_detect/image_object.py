@@ -5,7 +5,7 @@ from PIL import Image
 import scipy.misc
 from math import pow
 import numpy as np
-import __builtin__
+
 from tqdm import tqdm, trange
 import time
 
@@ -24,8 +24,8 @@ class image_object(object):
         :return: None
         """
 
-        print imageName
-        print "Step 1 of 4: Object and variable initialization",
+        print(imageName)
+        print("Step 1 of 4: Object and variable initialization",)
 
         # image parameter
         self.imageOutputDirectory = outputDirectory
@@ -64,7 +64,7 @@ class image_object(object):
         self.t1 = 2.80
         self.t2 = 0.02
 
-        print self.Nb, self.isThisRGBImage
+        print(self.Nb, self.isThisRGBImage)
 
         # container initialization to later contains several data
         self.featuresContainer = Container.Container()
@@ -88,15 +88,15 @@ class image_object(object):
         imageResultPath = self.reconstruct()
         timestampAfterImageCreation = time.time()
 
-        print "Computing time :", timestampAfterComputing - startTimestamp, "second"
-        print "Sorting time   :", timestampAfterSorting - timestampAfterComputing, "second"
-        print "Analyzing time :", timestampAfterAnalyze - timestampAfterSorting, "secon"
-        print "Image creation :", timestampAfterImageCreation - timestampAfterAnalyze, "second"
+        print("Computing time :", timestampAfterComputing - startTimestamp, "second")
+        print("Sorting time   :", timestampAfterSorting - timestampAfterComputing, "second")
+        print("Analyzing time :", timestampAfterAnalyze - timestampAfterSorting, "secon")
+        print("Image creation :", timestampAfterImageCreation - timestampAfterAnalyze, "second")
 
         totalRunningTimeInSecond = timestampAfterImageCreation - startTimestamp
         totalMinute, totalSecond = divmod(totalRunningTimeInSecond, 60)
         totalHour, totalMinute = divmod(totalMinute, 60)
-        print "Total time    : %d:%02d:%02d second" % (totalHour, totalMinute, totalSecond), '\n'
+        print("Total time    : %d:%02d:%02d second" % (totalHour, totalMinute, totalSecond), '\n')
         return imageResultPath
 
     def compute(self):
@@ -104,26 +104,25 @@ class image_object(object):
         To compute the characteristic features of image block
         :return: None
         """
-        print "Step 2 of 4: Computing feature vectors"
+        print("Step 2 of 4: Computing feature vectors")
 
         imageWidthOverlap = (self.imageWidth - self.blockDimension)
         imageHeightOverlap = (self.imageHeight - self.blockDimension)
 
         if self.isThisRGBImage:
             for i in tqdm(range(0, imageWidthOverlap + 1, 1)):
-	            print i
-	            for j in range(0, imageHeightOverlap + 1, 1):
-				    imageBlockRGB = self.imageData.crop((i, j, i + self.blockDimension, j + self.blockDimension))
-				    imageBlockGrayscale = self.imageGrayscale.crop(
-				        (i, j, i + self.blockDimension, j + self.blockDimension))
-				    imageBlock = Blocks.Blocks(imageBlockGrayscale, imageBlockRGB, i, j, self.blockDimension)
-				    self.featuresContainer.addBlock(imageBlock.computeBlock())
-	    else:
-			for i in range(imageWidthOverlap + 1):
-				for j in range(imageHeightOverlap + 1):
-					imageBlockGrayscale = self.imageData.crop((i, j, i + self.blockDimension, j + self.blockDimension))
-					imageBlock = Blocks.Blocks(imageBlockGrayscale, None, i, j, self.blockDimension)
-					self.featuresContainer.addBlock(imageBlock.computeBlock())
+                for j in range(0, imageHeightOverlap + 1, 1):
+                    imageBlockRGB = self.imageData.crop((i, j, i + self.blockDimension, j + self.blockDimension))
+                    imageBlockGrayscale = self.imageGrayscale.crop(
+                        (i, j, i + self.blockDimension, j + self.blockDimension))
+                    imageBlock = Blocks.Blocks(imageBlockGrayscale, imageBlockRGB, i, j, self.blockDimension)
+                    self.featuresContainer.addBlock(imageBlock.computeBlock())
+        else:
+            for i in range(imageWidthOverlap + 1):
+                for j in range(imageHeightOverlap + 1):
+                    imageBlockGrayscale = self.imageData.crop((i, j, i + self.blockDimension, j + self.blockDimension))
+                    imageBlock = Blocks.Blocks(imageBlockGrayscale, None, i, j, self.blockDimension)
+                    self.featuresContainer.addBlock(imageBlock.computeBlock())
 
     def sort(self):
         """
@@ -137,7 +136,7 @@ class image_object(object):
         To analyze pairs of image blocks
         :return: None
         """
-        print "Step 3 of 4:Pairing image blocks"
+        print("Step 3 of 4:Pairing image blocks")
         z = 0
         time.sleep(0.1)
         featureContainerLength = self.featuresContainer.getLength()
@@ -193,7 +192,7 @@ class image_object(object):
         """
         Add a pair of coordinate and its offset to the dictionary
         """
-        if self.offsetDictionary.has_key(pairOffset):
+        if pairOffset in self.offsetDictionary:
             self.offsetDictionary[pairOffset].append(firstCoordinate)
             self.offsetDictionary[pairOffset].append(secondCoordinate)
         else:
@@ -203,17 +202,18 @@ class image_object(object):
         """
         Reconstruct the image according to the fraud detection result
         """
-        print "Step 4 of 4: Image reconstruction"
+        print("Step 4 of 4: Image reconstruction")
 
         # create an array as the canvas of the final image
         groundtruthImage = np.zeros((self.imageHeight, self.imageWidth))
         linedImage = np.array(self.imageData.convert('RGB'))
 
-        for key in sorted(self.offsetDictionary, key=lambda key: __builtin__.len(self.offsetDictionary[key]),
+        # for key in sorted(self.offsetDictionary, key=lambda key: __builtin__.len(self.offsetDictionary[key]),
+        for key in sorted(self.offsetDictionary, key=lambda key: len(self.offsetDictionary[key]),
                           reverse=True):
             if self.offsetDictionary[key].__len__() < self.Nf * 2:
                 break
-            print key, self.offsetDictionary[key].__len__()
+            print(key, self.offsetDictionary[key].__len__())
             for i in range(self.offsetDictionary[key].__len__()):
                 # The original image (grayscale)
                 for j in range(self.offsetDictionary[key][i][1],
@@ -272,7 +272,9 @@ class image_object(object):
                         linedImage[xCoordinate + 1:xCoordinate + 3, yCordinate, 1] = 255
 
         timeStamp = time.strftime("%Y%m%d_%H%M%S")
-        scipy.misc.imsave(self.imageOutputDirectory + timeStamp + "_" + self.imagePath, groundtruthImage)
-        scipy.misc.imsave(self.imageOutputDirectory + timeStamp + "_lined_" + self.imagePath, linedImage)
+        # scipy.misc.imsave(self.imageOutputDirectory + timeStamp + "_" + self.imagePath, groundtruthImage)
+        Image.fromarray(groundtruthImage).convert('RGB').save(self.imageOutputDirectory + timeStamp + "_" + self.imagePath)
+        # scipy.misc.imsave(self.imageOutputDirectory + timeStamp + "_lined_" + self.imagePath, linedImage)
+        Image.fromarray(linedImage).convert('RGB').save(self.imageOutputDirectory + timeStamp + "_lined_" + self.imagePath)
 
         return self.imageOutputDirectory + timeStamp + "_lined_" + self.imagePath

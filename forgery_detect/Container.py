@@ -44,7 +44,7 @@ class Container(object):
         :return: None
         """
         for index in range(0, self.container.__len__()):
-            print self.container[index]
+            print(self.container[index])
         return
 
     def printContainer(self, count):
@@ -53,10 +53,10 @@ class Container(object):
         :param count: amount to be printed
         :return: None
         """
-        print "Element's index:", self.container.__len__()
+        print("Element's index:", self.container.__len__())
         if count > self.container.__len__():
             self.printAllContainer()
         else:
             for index in range(0, count):
-                print self.container[index]
+                print(self.container[index])
         return
